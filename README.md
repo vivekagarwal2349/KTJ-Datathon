@@ -21,10 +21,23 @@ https://github.com/nicolas-gervais/predicting-car-price-from-scraped-data/tree/m
 ## SN-GAN
 For steady and diverse image generation, we needed a GAN which could effectively absorb the design features of existing car models and successfully reproduce them in subsequent generations. Popular GANS architectures like DC-GAN are plagued by their training instability and inaccurate density ratio estimation by the discriminators. Therefore for our-case we used SN-GAN, a type of General Adversarial Network which uses a weight normalization method called **spectral normalization to stabilize the training of discriminator networks**. In image generation tasks, **it has been verified that generated examples using SN-GAN are more diverse than the conventional weight normalization and achieve better or comparative inception scores relative to previous studies.**
 
+Also used **LeCam Regularizer and Differential Augmentation technique** to improve performance and stabilize learning dynamics.
+
+![model structure](https://github.com/vivekagarwal2349/KTJ-Datathon/blob/main/GAN_model.png)
+
 We used StudioGAN 0.2.0 release to train the SNGAN model.  
 StudioGAN Repo: https://github.com/POSTECH-CVLab/PyTorch-StudioGAN   
 
 ## FreezeD Technique
 FeezeD stands for “Freeze the Discriminator” which is a simple baseline for fine-tuning GANs. It's simply freezing the lower layers of the discriminator and only fine-tuning the upper layers performs surprisingly well. FreezeD splits the discriminator into a feature extractor and a classifier and then fine-tunes the classifier only. It’s proven to significantly outperform previous techniques used in GANs. The pre-trained part is frozen and only last layers are trained and how big the change is on the weights in a layer is governed by the learning rate.
 
+## Generating Latent Code
+The train a ResNet model that can output the latent code given the desired output image. The training is done by producing a dataset using our trained GAN model, we input as many random latent codes as we want and store them along with their outputs ,then the inputs are used as outputs of our ResNet model and vice versa. 
 
+The output images of the latent codes predicted from such a ResNet are not accurate as these latent codes would only be an approximation of the real latent codes corresponding to the car images. To obtain the real latent codes corresponding to our desired car images, we pass the approximate latent codes into our GAN generator and obtain the inaccurate image and then take perceptual loss between this inaccurate image and desired image, we apply backpropagation on this perceptual loss with only latent code elements as trainable parameters.
+
+![image](https://github.com/vivekagarwal2349/KTJ-Datathon/blob/main/LatentCode_backPropagation.png)
+
+## Results
+
+![Result](https://github.com/vivekagarwal2349/KTJ-Datathon/blob/main/Generated_result.png)
